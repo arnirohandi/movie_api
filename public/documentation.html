@@ -36,56 +36,150 @@
     <table>
         <thead>
             <tr>
-                <th>Request</th>
+                <th>Description</th>
                 <th>URL</th>
+                <th>Method</th>
+                <th>Query Parameters</th>
+                <th>Request Body</th>
                 <th>Response</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>GET all movies</td>
+                <td>Return a list of all movies</td>
                 <td>/movies</td>
-                <td>List of all movies</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>None</td>
+                <td>
+<pre>[
+  { "title": "The Dark Knight", "director": "Christopher Nolan", "year": 2008 },
+  ...
+]</pre>
+                </td>
             </tr>
             <tr>
-                <td>GET a single movie by title</td>
+                <td>Return data about a single movie by title</td>
                 <td>/movies/title/{title}</td>
-                <td>Details of the specified movie (description, genre, director, image URL, featured)</td>
+                <td>GET</td>
+                <td>{title}</td>
+                <td>None</td>
+                <td>
+<pre>{
+  "title": "Inception",
+  "description": "A thief who steals corporate secrets...",
+  "genre": "Science Fiction",
+  "director": "Christopher Nolan",
+  "imageURL": "http://example.com/image.jpg",
+  "featured": true
+}</pre>
+                </td>
             </tr>
             <tr>
-                <td>GET a genre by name/title</td>
+                <td>Return data about a genre by name</td>
                 <td>/genres/{name}</td>
-                <td>Details of the specified genre (description)</td>
+                <td>GET</td>
+                <td>{name}</td>
+                <td>None</td>
+                <td>
+<pre>{
+  "name": "Thriller",
+  "description": "A genre characterized by suspense..."
+}</pre>
+                </td>
             </tr>
             <tr>
-                <td>GET a director by name</td>
+                <td>Return data about a director by name</td>
                 <td>/directors/{name}</td>
-                <td>Details of the specified director (bio, birth year, death year)</td>
+                <td>GET</td>
+                <td>{name}</td>
+                <td>None</td>
+                <td>
+<pre>{
+  "name": "Christopher Nolan",
+  "bio": "A British-American film director...",
+  "birthYear": 1970,
+  "deathYear": null
+}</pre>
+                </td>
             </tr>
             <tr>
-                <td>POST a new user registration</td>
+                <td>Register a new user</td>
                 <td>/users</td>
-                <td>Created user details</td>
+                <td>POST</td>
+                <td>None</td>
+                <td>
+<pre>{
+  "username": "johndoe",
+  "password": "password123",
+  "email": "johndoe@example.com",
+  "birthday": "1985-05-15"
+}</pre>
+                </td>
+                <td>
+<pre>{
+  "username": "johndoe",
+  "email": "johndoe@example.com",
+  "birthday": "1985-05-15",
+  "favoriteMovies": []
+}</pre>
+                </td>
             </tr>
             <tr>
-                <td>PUT (update) user info</td>
+                <td>Update user info</td>
                 <td>/users/{username}</td>
-                <td>Updated user details</td>
+                <td>PUT</td>
+                <td>{username}</td>
+                <td>
+<pre>{
+  "username": "newusername",
+  "email": "newemail@example.com"
+}</pre>
+                </td>
+                <td>
+<pre>{
+  "username": "newusername",
+  "email": "newemail@example.com",
+  "birthday": "1985-05-15",
+  "favoriteMovies": []
+}</pre>
+                </td>
             </tr>
             <tr>
-                <td>POST add a movie to user's favorites</td>
+                <td>Add a movie to user's favorites</td>
                 <td>/users/{username}/favorites/{movieId}</td>
-                <td>Confirmation text that a movie has been added</td>
+                <td>POST</td>
+                <td>{username}, {movieId}</td>
+                <td>None</td>
+                <td>
+<pre>{
+  "message": "Movie has been added to favorites"
+}</pre>
+                </td>
             </tr>
             <tr>
-                <td>DELETE a movie from user's favorites</td>
+                <td>Remove a movie from user's favorites</td>
                 <td>/users/{username}/favorites/{movieId}</td>
-                <td>Confirmation text that a movie has been removed</td>
+                <td>DELETE</td>
+                <td>{username}, {movieId}</td>
+                <td>None</td>
+                <td>
+<pre>{
+  "message": "Movie has been removed from favorites"
+}</pre>
+                </td>
             </tr>
             <tr>
-                <td>DELETE user deregistration</td>
+                <td>Deregister a user</td>
                 <td>/users/{username}</td>
-                <td>Confirmation text that a user has been removed</td>
+                <td>DELETE</td>
+                <td>{username}</td>
+                <td>None</td>
+                <td>
+<pre>{
+  "message": "User has been removed"
+}</pre>
+                </td>
             </tr>
         </tbody>
     </table>
