@@ -32,45 +32,62 @@
   <p>The base URL for all API requests is:</p>
   <pre><code>http://localhost:8080</code></pre>
 
-  <h2>Endpoints</h2>
-  
-  <h3>GET /</h3>
-  <p>Returns a welcome message.</p>
-  <pre><code>GET /</code></pre>
-  <p><strong>Response:</strong></p>
-  <pre><code>200 OK
-Content-Type: text/plain
-
-Welcome to my movie club!</code></pre>
-
-  <h3>GET /documentation</h3>
-  <p>Returns the API documentation (this page).</p>
-  <pre><code>GET /documentation</code></pre>
-  <p><strong>Response:</strong></p>
-  <pre><code>200 OK
-Content-Type: text/html
-
-[HTML content of this documentation page]</code></pre>
-
-  <h3>GET /movies</h3>
-  <p>Returns a JSON object containing data about the top 10 movies.</p>
-  <pre><code>GET /movies</code></pre>
-  <p><strong>Response:</strong></p>
-  <pre><code>200 OK
-Content-Type: application/json
-
-[
-  { "title": "The Dark Knight", "director": "Christopher Nolan", "year": 2008 },
-  { "title": "Inception", "director": "Christopher Nolan", "year": 2010 },
-  { "title": "The Lord of the Rings: The Return of the King", "director": "Peter Jackson", "year": 2003 },
-  { "title": "Mad Max: Fury Road", "director": "George Miller", "year": 2015 },
-  { "title": "Parasite", "director": "Bong Joon-ho", "year": 2019 },
-  { "title": "The Social Network", "director": "David Fincher", "year": 2010 },
-  { "title": "Interstellar", "director": "Christopher Nolan", "year": 2014 },
-  { "title": "The Wolf of Wall Street", "director": "Martin Scorsese", "year": 2013 },
-  { "title": "Spider-Man: Into the Spider-Verse", "director": "Peter Ramsey, Rodney Rothman", "year": 2018 },
-  { "title": "Everything Everywhere All at Once", "director": "Daniel Kwan, Daniel Scheinert", "year": 2022 }
-]</code></pre>
-
+  <h2>URL Endpoints and Request Methods</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Request</th>
+                <th>URL</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>GET all movies</td>
+                <td>/movies</td>
+                <td>List of all movies</td>
+            </tr>
+            <tr>
+                <td>GET a single movie by title</td>
+                <td>/movies/title/{title}</td>
+                <td>Details of the specified movie (description, genre, director, image URL, featured)</td>
+            </tr>
+            <tr>
+                <td>GET a genre by name/title</td>
+                <td>/genres/{name}</td>
+                <td>Details of the specified genre (description)</td>
+            </tr>
+            <tr>
+                <td>GET a director by name</td>
+                <td>/directors/{name}</td>
+                <td>Details of the specified director (bio, birth year, death year)</td>
+            </tr>
+            <tr>
+                <td>POST a new user registration</td>
+                <td>/users</td>
+                <td>Created user details</td>
+            </tr>
+            <tr>
+                <td>PUT (update) user info</td>
+                <td>/users/{username}</td>
+                <td>Updated user details</td>
+            </tr>
+            <tr>
+                <td>POST add a movie to user's favorites</td>
+                <td>/users/{username}/favorites/{movieId}</td>
+                <td>Confirmation text that a movie has been added</td>
+            </tr>
+            <tr>
+                <td>DELETE a movie from user's favorites</td>
+                <td>/users/{username}/favorites/{movieId}</td>
+                <td>Confirmation text that a movie has been removed</td>
+            </tr>
+            <tr>
+                <td>DELETE user deregistration</td>
+                <td>/users/{username}</td>
+                <td>Confirmation text that a user has been removed</td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
