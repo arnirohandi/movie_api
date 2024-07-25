@@ -177,9 +177,6 @@ app.get('/movies', (req, res) => {
   res.json(movies);
 });
 
-
-// New Routes
-
 // Endpoint to return data about a single movie by title
 app.get('/movies/title/:title', (req, res) => {
   const movieTitle = req.params.title;
@@ -219,8 +216,8 @@ app.get('/directors/:name', (req, res) => {
 });
 
 // Endpoint to register a new user
-app.post('/users', (req, res) => {
-  res.send(req);
+app.post('/users/:username', (req, res) => {
+  res.send(`User ${req.params.username} will be registered (not implemented just yet) `);
 });
 
 // Endpoint to update user info
