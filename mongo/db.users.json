@@ -1,0 +1,53 @@
+// Insert into Users collection with favoriteMovies referencing movies by their _id
+db.users.insertMany([
+  { 
+    username: "john_doe", 
+    password: "password123", 
+    email: "john@example.com", 
+    birthday: new Date("1990-05-15"), 
+    favoriteMovies: [
+      ObjectId("66f71c458c38901b942b6de4"),  // Inception _id
+      ObjectId("66f71c458c38901b942b6dea")   // The Dark Knight _id
+    ]
+  },
+  { 
+    username: "jane_smith", 
+    password: "mysecurepassword", 
+    email: "jane@example.com", 
+    birthday: new Date("1985-11-20"), 
+    favoriteMovies: [
+      ObjectId("66f71c458c38901b942b6de6"),  // Pulp Fiction _id
+      ObjectId("66f71c658c38901b942b6deb")   // Kill Bill: Vol. 1 _id
+    ]
+  },
+  { 
+    username: "michael_brown", 
+    password: "password456", 
+    email: "michael@example.com", 
+    birthday: new Date("1992-02-10"), 
+    favoriteMovies: [
+      ObjectId("66f71c458c38901b942b6de5"),  // Interstellar _id
+      ObjectId("66f71c458c38901b942b6de8")   // Jurassic Park _id
+    ]
+  },
+  { 
+    username: "sarah_connor", 
+    password: "terminator123", 
+    email: "sarah@example.com", 
+    birthday: new Date("1988-07-15"), 
+    favoriteMovies: [
+      ObjectId("66f71c178c38901b942b6de2"),  // Minority Report _id
+      ObjectId("66f71c178c38901b942b6de3")   // E.T. the Extra-Terrestrial _id
+    ]
+  },
+  { 
+    username: "robert_smith", 
+    password: "hunter2024", 
+    email: "robert@example.com", 
+    birthday: new Date("1995-09-30"), 
+    favoriteMovies: [
+      ObjectId("66f71c458c38901b942b6de7"),  // Django Unchained _id
+      ObjectId("66f71c458c38901b942b6de9")   // Schindler's List _id
+    ]
+  }
+]);

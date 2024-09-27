@@ -1,0 +1,171 @@
+// Insert into Movies collection
+db.movies.insertMany([
+  { 
+    title: "Inception", 
+    description: "A mind-bending thriller about dreams within dreams", 
+    director: { 
+      name: "Christopher Nolan", 
+      bio: "English-American film director, producer, and screenwriter", 
+      birth_date: ISODate("1970-07-30T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Science Fiction", 
+      description: "Genre dealing with futuristic concepts and advanced technology" 
+    },
+    image_url: "https://example.com/inception.jpg", 
+    featured: true 
+  },
+  { 
+    title: "Interstellar", 
+    description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival", 
+    director: { 
+      name: "Christopher Nolan", 
+      bio: "English-American film director, producer, and screenwriter", 
+      birth_date: ISODate("1970-07-30T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Science Fiction", 
+      description: "Genre dealing with futuristic concepts and advanced technology" 
+    },
+    image_url: "https://example.com/interstellar.jpg", 
+    featured: false 
+  },
+  { 
+    title: "Pulp Fiction", 
+    description: "A crime drama with interweaving stories", 
+    director: { 
+      name: "Quentin Tarantino", 
+      bio: "American film director, writer, and actor", 
+      birth_date: ISODate("1963-03-27T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Drama", 
+      description: "Genre focused on character-driven stories and emotional themes" 
+    },
+    image_url: "https://example.com/pulpfiction.jpg", 
+    featured: true 
+  },
+  { 
+    title: "Django Unchained", 
+    description: "A freed slave sets out to rescue his wife from a brutal plantation owner", 
+    director: { 
+      name: "Quentin Tarantino", 
+      bio: "American film director, writer, and actor", 
+      birth_date: ISODate("1963-03-27T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Action", 
+      description: "Genre featuring intense physical activity, stunts, and chases" 
+    },
+    image_url: "https://example.com/django.jpg", 
+    featured: false 
+  },
+  { 
+    title: "Jurassic Park", 
+    description: "A science fiction adventure about a theme park with cloned dinosaurs", 
+    director: { 
+      name: "Steven Spielberg", 
+      bio: "American film director, producer, and screenwriter", 
+      birth_date: ISODate("1946-12-18T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Science Fiction", 
+      description: "Genre dealing with futuristic concepts and advanced technology" 
+    },
+    image_url: "https://example.com/jurassicpark.jpg", 
+    featured: true 
+  },
+  { 
+    title: "Schindler's List", 
+    description: "A historical drama about a man who saved thousands during the Holocaust", 
+    director: { 
+      name: "Steven Spielberg", 
+      bio: "American film director, producer, and screenwriter", 
+      birth_date: ISODate("1946-12-18T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Drama", 
+      description: "Genre focused on character-driven stories and emotional themes" 
+    },
+    image_url: "https://example.com/schindlerslist.jpg", 
+    featured: false 
+  },
+  { 
+    title: "The Dark Knight", 
+    description: "A crime thriller where Batman faces off against the Joker", 
+    director: { 
+      name: "Christopher Nolan", 
+      bio: "English-American film director, producer, and screenwriter", 
+      birth_date: ISODate("1970-07-30T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Action", 
+      description: "Genre featuring intense physical activity, stunts, and chases" 
+    },
+    image_url: "https://example.com/darkknight.jpg", 
+    featured: true 
+  }
+]);
+
+
+
+db.movies.insertMany([
+  { 
+    title: "Kill Bill: Vol. 1", 
+    description: "A woman seeks revenge on her former assassins", 
+    director: { 
+      name: "Quentin Tarantino", 
+      bio: "American film director, writer, and actor", 
+      birth_date: ISODate("1963-03-27T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Action", 
+      description: "Genre featuring intense physical activity, stunts, and chases" 
+    },
+    image_url: "https://example.com/killbill1.jpg", 
+    featured: true 
+  }
+]);
+
+db.movies.insertMany([
+  { 
+    title: "Minority Report", 
+    description: "In a future where crimes are predicted, a cop is accused of a future murder", 
+    director: { 
+      name: "Steven Spielberg", 
+      bio: "American film director, producer, and screenwriter", 
+      birth_date: ISODate("1946-12-18T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Science Fiction", 
+      description: "Genre dealing with futuristic concepts and advanced technology" 
+    },
+    image_url: "https://example.com/minorityreport.jpg", 
+    featured: false 
+  },
+  { 
+    title: "E.T. the Extra-Terrestrial", 
+    description: "A young boy befriends a gentle alien stranded on Earth", 
+    director: { 
+      name: "Steven Spielberg", 
+      bio: "American film director, producer, and screenwriter", 
+      birth_date: ISODate("1946-12-18T00:00:00Z"), 
+      death_year: null 
+    },
+    genre: { 
+      name: "Drama", 
+      description: "Genre focused on character-driven stories and emotional themes" 
+    },
+    image_url: "https://example.com/et.jpg", 
+    featured: true 
+  }
+  ]);
