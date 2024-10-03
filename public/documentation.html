@@ -55,7 +55,23 @@
                 <td>200 OK</td>
                 <td>
 <pre>[
-  { "title": "The Dark Knight", "director": "Christopher Nolan", "year": 2008 },
+  {
+      "director": {
+          "name": "Steven Spielberg",
+          "bio": "American film director, producer, and screenwriter",
+          "birth_date": "1946-12-18T00:00:00.000Z",
+          "death_year": null
+      },
+      "genre": {
+          "name": "Science Fiction",
+          "description": "Genre dealing with futuristic concepts and advanced technology"
+      },
+      "_id": "66f71c178c38901b942b6de2",
+      "title": "Minority Report",
+      "description": "In a future where crimes are predicted, a cop is accused of a future murder",
+      "image_url": "https://example.com/minorityreport.jpg",
+      "featured": false
+  },
   ...
 ]</pre>
                 </td>
@@ -66,28 +82,55 @@
                 <td>GET</td>
                 <td>{title}</td>
                 <td>None</td>
+                <td>200 OK</td>
                 <td>
 <pre>{
+  "director": {
+      "name": "Christopher Nolan",
+      "bio": "Updated bio of Christopher Nolan",
+      "birth_date": "1970-07-30T00:00:00.000Z",
+      "death_year": null
+  },
+  "genre": {
+      "name": "Science Fiction",
+      "description": "Genre dealing with futuristic concepts and advanced technology"
+  },
+  "_id": "66f71c458c38901b942b6de4",
   "title": "Inception",
-  "description": "A thief who steals corporate secrets...",
-  "genre": "Science Fiction",
-  "director": "Christopher Nolan",
-  "imageURL": "http://example.com/image.jpg",
+  "description": "A new updated description for Inception.",
+  "image_url": "https://example.com/inception.jpg",
   "featured": true
 }</pre>
                 </td>
             </tr>
             <tr>
-                <td>Return data about a genre by name</td>
-                <td>/genres/{name}</td>
+                <td>Return movies by a genre</td>
+                <td>/movies/genres/{name}</td>
                 <td>GET</td>
                 <td>{name}</td>
                 <td>None</td>
+                <td>200 OK</td>
                 <td>
-<pre>{
-  "name": "Thriller",
-  "description": "A genre characterized by suspense..."
-}</pre>
+<pre>[
+  {
+      "director": {
+          "name": "Quentin Tarantino",
+          "bio": "American film director, writer, and actor",
+          "birth_date": "1963-03-27T00:00:00.000Z",
+          "death_year": null
+      },
+      "genre": {
+          "name": "Action",
+          "description": "Genre featuring intense physical activity, stunts, and chases"
+      },
+      "_id": "66f71c458c38901b942b6de7",
+      "title": "Django Unchained",
+      "description": "A freed slave sets out to rescue his wife from a brutal plantation owner",
+      "image_url": "https://example.com/django.jpg",
+      "featured": false
+  },
+...
+</pre>
                 </td>
             </tr>
             <tr>
@@ -96,6 +139,7 @@
                 <td>GET</td>
                 <td>{name}</td>
                 <td>None</td>
+                <td>200 OK</td>
                 <td>
 <pre>{
   "name": "Christopher Nolan",
@@ -106,24 +150,52 @@
                 </td>
             </tr>
             <tr>
+              <td>Return a list of all users</td>
+              <td>/users</td>
+              <td>GET</td>
+              <td>None</td>
+              <td>None</td>
+              <td>200 OK</td>
+              <td>
+<pre>[
+  {
+      "_id": "66f71f1d8c38901b942b6df2",
+      "username": "jane_smith",
+      "password": "newpassword",
+      "email": "new@mail.com",
+      "birthday": "1985-05-15T00:00:00.000Z",
+      "favoriteMovies": [
+          "66f71c458c38901b942b6de6",
+          "66f71c658c38901b942b6deb"
+      ]
+  },
+...
+]</pre>
+              </td>
+          </tr>
+            <tr>
                 <td>Register a new user</td>
                 <td>/users</td>
                 <td>POST</td>
                 <td>None</td>
                 <td>
 <pre>{
-  "username": "johndoe",
-  "password": "password123",
-  "email": "johndoe@example.com",
-  "birthday": "1985-05-15"
+  "Username": "johndoe",
+  "Password": "password123",
+  "Email": "johndoe@example.com",
+  "Birthday": "1985-05-15"
 }</pre>
                 </td>
+                <td>201 Created</td>
                 <td>
 <pre>{
   "username": "johndoe",
   "password": "password123",
   "email": "johndoe@example.com",
-  "birthday": "1985-05-15"
+  "birthday": "1985-05-15T00:00:00.000Z",
+  "favoriteMovies": [],
+  "_id": "66fec21c2e5e82e452e464ea",
+  "__v": 0
 }</pre>
                 </td>
             </tr>
@@ -134,40 +206,67 @@
                 <td>{username}</td>
                 <td>
 <pre>{
-  "username": "newusername",
-  "email": "newemail@example.com"
+  "Username": "jane_smith",
+  "Password": "newpassword",
+  "Email": "new@mail.com",
+  "Birthday": "1985-05-15"
 }</pre>
                 </td>
+                <td>200 OK</td>
                 <td>
 <pre>{
-  "username": "newusername",
-  "email": "newemail@example.com",
-  "birthday": "1985-05-15",
-  "favoriteMovies": []
+  "_id": "66f71f1d8c38901b942b6df2",
+  "username": "jane_smith",
+  "password": "newpassword",
+  "email": "new@mail.com",
+  "birthday": "1985-05-15T00:00:00.000Z",
+  "favoriteMovies": [
+      "66f71c458c38901b942b6de6",
+      "66f71c658c38901b942b6deb"
+  ]
 }</pre>
                 </td>
             </tr>
             <tr>
                 <td>Add a movie to user's favorites</td>
-                <td>/users/{username}/favorites/{movieId}</td>
+                <td>/users/{username}/movie/{movieId}</td>
                 <td>POST</td>
                 <td>{username}, {movieId}</td>
                 <td>None</td>
+                <td>200 OK</td>
                 <td>
 <pre>{
-  "message": "Movie has been added to favorites"
+  "_id": "66f71f1d8c38901b942b6df2",
+  "username": "jane_smith",
+  "password": "newpassword",
+  "email": "new@mail.com",
+  "birthday": "1985-05-15T00:00:00.000Z",
+  "favoriteMovies": [
+      "66f71c458c38901b942b6de6",
+      "66f71c658c38901b942b6deb",
+      "66f71c458c38901b942b6de5"
+  ]
 }</pre>
                 </td>
             </tr>
             <tr>
                 <td>Remove a movie from user's favorites</td>
-                <td>/users/{username}/favorites/{movieId}</td>
+                <td>/users/{username}/movie/{movieId}</td>
                 <td>DELETE</td>
                 <td>{username}, {movieId}</td>
                 <td>None</td>
+                <td>200 OK</td>
                 <td>
 <pre>{
-  "message": "Movie has been removed from favorites"
+  "_id": "66f71f1d8c38901b942b6df2",
+  "username": "jane_smith",
+  "password": "newpassword",
+  "email": "new@mail.com",
+  "birthday": "1985-05-15T00:00:00.000Z",
+  "favoriteMovies": [
+      "66f71c458c38901b942b6de6",
+      "66f71c658c38901b942b6deb"
+  ]
 }</pre>
                 </td>
             </tr>
@@ -177,10 +276,9 @@
                 <td>DELETE</td>
                 <td>{username}</td>
                 <td>None</td>
+                <td>200 OK</td>
                 <td>
-<pre>{
-  "message": "User has been removed"
-}</pre>
+<pre>johndoe was deleted.</pre>
                 </td>
             </tr>
         </tbody>

@@ -2,108 +2,21 @@
 const express = require('express');
 const morgan = require('morgan');
 const Models = require('./models.js');
+const mongoose = require('mongoose');
 
-const NewMovies = Models.Movies;
-const NewUsers = Models.Users;
+const MongoMovies = Models.Movies;
+const MongoUsers = Models.Users;
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/cfDB', { });
 
 // Create an instance of express
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Use morgan middleware
 app.use(morgan('common'));
-
-let movies = [
-  {
-    title: "Inception",
-    director: "Christopher Nolan",
-    year: 2010,
-    genre: "Science Fiction",
-    description: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea.",
-    imageURL: "http://example.com/inception.jpg",
-    featured: false
-  },
-  {
-    title: "The Dark Knight",
-    director: "Christopher Nolan",
-    year: 2008,
-    genre: "Action",
-    description: "When the menace known as the Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.",
-    imageURL: "http://example.com/darkknight.jpg",
-    featured: true
-  },
-  {
-    title: "Parasite",
-    director: "Bong Joon-ho",
-    year: 2019,
-    genre: "Thriller",
-    description: "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.",
-    imageURL: "http://example.com/parasite.jpg",
-    featured: false
-  },
-  {
-    title: "Mad Max: Fury Road",
-    director: "George Miller",
-    year: 2015,
-    genre: "Action",
-    description: "In a post-apocalyptic wasteland, Max teams up with a mysterious woman to try and survive.",
-    imageURL: "http://example.com/madmax.jpg",
-    featured: false
-  },
-  {
-    title: "Interstellar",
-    director: "Christopher Nolan",
-    year: 2014,
-    genre: "Science Fiction",
-    description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-    imageURL: "http://example.com/interstellar.jpg",
-    featured: false
-  },
-  {
-    title: "The Social Network",
-    director: "David Fincher",
-    year: 2010,
-    genre: "Drama",
-    description: "The story of the founders of the social-networking website, Facebook.",
-    imageURL: "http://example.com/socialnetwork.jpg",
-    featured: false
-  },
-  {
-    title: "The Wolf of Wall Street",
-    director: "Martin Scorsese",
-    year: 2013,
-    genre: "Biography",
-    description: "Based on the true story of Jordan Belfort, from his rise to a wealthy stock-broker living the high life to his fall involving crime, corruption and the federal government.",
-    imageURL: "http://example.com/wolfofwallstreet.jpg",
-    featured: false
-  },
-  {
-    title: "Spider-Man: Into the Spider-Verse",
-    directors: ["Peter Ramsey", "Rodney Rothman"],
-    year: 2018,
-    genre: "Animation",
-    description: "Teen Miles Morales becomes Spider-Man of his reality, crossing his path with five counterparts from other dimensions to stop a threat for all realities.",
-    imageURL: "http://example.com/spiderman.jpg",
-    featured: false
-  },
-  {
-    title: "Everything Everywhere All at Once",
-    directors: ["Daniel Kwan", "Daniel Scheinert"],
-    year: 2022,
-    genre: "Adventure",
-    description: "An aging Chinese immigrant is swept up in an insane adventure, where she alone can save the world by exploring other universes connecting with the lives she could have led.",
-    imageURL: "http://example.com/everything.jpg",
-    featured: false
-  },
-  {
-    title: "The Lord of the Rings: The Return of the King",
-    director: "Peter Jackson",
-    year: 2003,
-    genre: "Fantasy",
-    description: "Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.",
-    imageURL: "http://example.com/lotr.jpg",
-    featured: false
-  }
-];
 
 let directors = [
   {
@@ -177,12 +90,14 @@ app.get('/documentation', (req, res) => {
   res.sendFile('public/documentation.html', { root: __dirname });
 });
 
-app.get('/movies', (req, res) => {
+app.get('/movies', async (req, res) => {
+  const movies = await MongoMovies.find({});
   res.json(movies);
 });
 
 // Endpoint to return data about a single movie by title
-app.get('/movies/title/:title', (req, res) => {
+app.get('/movies/title/:title', async (req, res) => {
+  const movies = await MongoMovies.find({});
   const movieTitle = req.params.title;
   const movie = movies.find(m => m.title.toLowerCase() === movieTitle.toLowerCase());
 
@@ -193,10 +108,11 @@ app.get('/movies/title/:title', (req, res) => {
   }
 });
 
-// Endpoint to get a genre by name/title
-app.get('/genres/:name', (req, res) => {
+// Endpoint to return movies by a genre
+app.get('/movies/genre/:name', async (req, res) => {
+  const movies = await MongoMovies.find({});
   const genre = req.params.name;
-  const filteredMovies = movies.filter(m => m.genre.toUpperCase() === genre.toUpperCase());
+  const filteredMovies = movies.filter(m => m.genre.name.toUpperCase() === genre.toUpperCase());
 
   if (filteredMovies.length != 0) {
     res.json(filteredMovies);
@@ -220,32 +136,142 @@ app.get('/directors/:name', (req, res) => {
 });
 
 // Endpoint to register a new user
-app.post('/users/:username', (req, res) => {
-  res.send(`User ${req.params.username} will be registered (not implemented just yet) `);
+/* We’ll expect JSON in this format
+{
+  ID: Integer,
+  Username: String,
+  Password: String,
+  Email: String,
+  Birthday: Date
+}*/
+app.post('/users', async (req, res) => {
+  // console.log('Hello');
+  // console.log(req.body.Username);
+  await MongoUsers.findOne({ username: req.body.Username })
+    .then((user) => {
+      if (user) {
+        return res.status(400).send(req.body.Username + 'already exists');
+      } else {
+        MongoUsers
+          .create({
+            username: req.body.Username,
+            password: req.body.Password,
+            email: req.body.Email,
+            birthday: req.body.Birthday
+          })
+          .then((user) =>{res.status(201).json(user) })
+        .catch((error) => {
+          console.error(error);
+          res.status(500).send('Error: ' + error);
+        })
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
+});
+
+// Get all users
+app.get('/users', async (req, res) => {
+  await MongoUsers.find()
+    .then((users) => {
+      res.status(201).json(users);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
+});
+
+// Get a user by username
+app.get('/users/:Username', async (req, res) => {
+  await MongoUsers.findOne({ username: req.params.Username })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
 });
 
 // Endpoint to update user info
-app.put('/users/:username', (req, res) => {
-  const { username } = req.params;
-  res.send(`Update user info for username: ${username}`);
+/* We’ll expect JSON in this format
+{
+  Username: String,
+  (required)
+  Password: String,
+  (required)
+  Email: String,
+  (required)
+  Birthday: Date
+}*/
+app.put('/users/:Username', async (req, res) => {
+  await MongoUsers.findOneAndUpdate({ username: req.params.Username }, { $set:
+    {
+      username: req.body.Username,
+      password: req.body.Password,
+      email: req.body.Email,
+      birthday: req.body.Birthday
+    }
+  },
+  { new: true }) // This line makes sure that the updated document is returned
+  .then((updatedUser) => {
+    res.json(updatedUser);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  })
+
 });
 
 // Endpoint to add a movie to user's favorites
-app.post('/users/:username/favorites/:movieId', (req, res) => {
-  const { username, movieId } = req.params;
-  res.send(`Add movie with ID ${movieId} to favorites for user: ${username}`);
+app.post('/users/:Username/movies/:MovieID', async (req, res) => {
+  await MongoUsers.findOneAndUpdate({ username: req.params.Username }, {
+     $push: { favoriteMovies: req.params.MovieID }
+   },
+   { new: true }) // This line makes sure that the updated document is returned
+  .then((updatedUser) => {
+    res.json(updatedUser);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
 });
 
 // Endpoint to remove a movie from user's favorites
-app.delete('/users/:username/favorites/:movieId', (req, res) => {
-  const { username, movieId } = req.params;
-  res.send(`Remove movie with ID ${movieId} from favorites for user: ${username}`);
+app.delete('/users/:Username/movies/:MovieID', async (req, res) => {
+  await MongoUsers.findOneAndUpdate({ username: req.params.Username }, {
+     $pull: { favoriteMovies: req.params.MovieID }
+   },
+   { new: true }) // This line makes sure that the updated document is returned
+  .then((updatedUser) => {
+    res.json(updatedUser);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
 });
 
 // Endpoint to deregister a user
-app.delete('/users/:username', (req, res) => {
-  const { username } = req.params;
-  res.send(`Deregister user with username: ${username}`);
+// findOneAndRemove has been deprecated, the new one: findOneAndDelete
+app.delete('/users/:Username', async (req, res) => {
+  await MongoUsers.findOneAndDelete({ username: req.params.Username })
+    .then((user) => {
+      if (!user) {
+        res.status(400).send(req.params.Username + ' was not found');
+      } else {
+        res.status(200).send(req.params.Username + ' was deleted.');
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
 });
 
 // Handle errors in express
