@@ -1,6 +1,10 @@
 // Require the express module
 const express = require('express');
 const morgan = require('morgan');
+const Models = require('./models.js');
+
+const NewMovies = Models.Movies;
+const NewUsers = Models.Users;
 
 // Create an instance of express
 const app = express();
