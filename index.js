@@ -15,6 +15,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Import auth.js file
+let auth = require('./auth')(app);
+
+// Import passport.js file
+const passport = require('passport');
+require('./passport');
+
 // Use morgan middleware
 app.use(morgan('common'));
 
@@ -90,13 +97,15 @@ app.get('/documentation', (req, res) => {
   res.sendFile('public/documentation.html', { root: __dirname });
 });
 
-app.get('/movies', async (req, res) => {
+app.get('/movies', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   const movies = await MongoMovies.find({});
   res.json(movies);
 });
 
 // Endpoint to return data about a single movie by title
-app.get('/movies/title/:title', async (req, res) => {
+app.get('/movies/title/:title', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   const movies = await MongoMovies.find({});
   const movieTitle = req.params.title;
   const movie = movies.find(m => m.title.toLowerCase() === movieTitle.toLowerCase());
@@ -109,7 +118,8 @@ app.get('/movies/title/:title', async (req, res) => {
 });
 
 // Endpoint to return movies by a genre
-app.get('/movies/genre/:name', async (req, res) => {
+app.get('/movies/genre/:name', passport.authenticate('jwt', { session: false }), 
+  async (req, res) => {
   const movies = await MongoMovies.find({});
   const genre = req.params.name;
   const filteredMovies = movies.filter(m => m.genre.name.toUpperCase() === genre.toUpperCase());
@@ -123,7 +133,8 @@ app.get('/movies/genre/:name', async (req, res) => {
 });
 
 // Endpoint to get a director by name
-app.get('/directors/:name', (req, res) => {
+app.get('/directors/:name', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   const directorName = req.params.name;
   const director = directors.find(m => m.name.toLowerCase() === directorName.toLowerCase());
 
@@ -144,6 +155,7 @@ app.get('/directors/:name', (req, res) => {
   Email: String,
   Birthday: Date
 }*/
+
 app.post('/users', async (req, res) => {
   // console.log('Hello');
   // console.log(req.body.Username);
@@ -173,7 +185,8 @@ app.post('/users', async (req, res) => {
 });
 
 // Get all users
-app.get('/users', async (req, res) => {
+app.get('/users', passport.authenticate('jwt', { session: false }), 
+  async (req, res) => {
   await MongoUsers.find()
     .then((users) => {
       res.status(201).json(users);
@@ -185,7 +198,8 @@ app.get('/users', async (req, res) => {
 });
 
 // Get a user by username
-app.get('/users/:Username', async (req, res) => {
+app.get('/users/:Username', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   await MongoUsers.findOne({ username: req.params.Username })
     .then((user) => {
       res.json(user);
@@ -207,7 +221,8 @@ app.get('/users/:Username', async (req, res) => {
   (required)
   Birthday: Date
 }*/
-app.put('/users/:Username', async (req, res) => {
+app.put('/users/:Username', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   await MongoUsers.findOneAndUpdate({ username: req.params.Username }, { $set:
     {
       username: req.body.Username,
@@ -228,7 +243,8 @@ app.put('/users/:Username', async (req, res) => {
 });
 
 // Endpoint to add a movie to user's favorites
-app.post('/users/:Username/movies/:MovieID', async (req, res) => {
+app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   await MongoUsers.findOneAndUpdate({ username: req.params.Username }, {
      $push: { favoriteMovies: req.params.MovieID }
    },
@@ -243,7 +259,8 @@ app.post('/users/:Username/movies/:MovieID', async (req, res) => {
 });
 
 // Endpoint to remove a movie from user's favorites
-app.delete('/users/:Username/movies/:MovieID', async (req, res) => {
+app.delete('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   await MongoUsers.findOneAndUpdate({ username: req.params.Username }, {
      $pull: { favoriteMovies: req.params.MovieID }
    },
@@ -259,7 +276,8 @@ app.delete('/users/:Username/movies/:MovieID', async (req, res) => {
 
 // Endpoint to deregister a user
 // findOneAndRemove has been deprecated, the new one: findOneAndDelete
-app.delete('/users/:Username', async (req, res) => {
+app.delete('/users/:Username', passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
   await MongoUsers.findOneAndDelete({ username: req.params.Username })
     .then((user) => {
       if (!user) {
