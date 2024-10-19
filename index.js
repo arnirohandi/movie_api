@@ -13,7 +13,8 @@ const MongoMovies = Models.Movies;
 const MongoUsers = Models.Users;
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/cfDB', {})
+//mongoose.connect('mongodb://localhost:27017/cfDB', {})
+mongoose.connect(process.env.CONNECTION_URI, {})
   .then(() => console.log('This application server is now connected to MongoDB server'))
   .catch(err => console.error('Could not connect to MongoDB server:', err));
 
