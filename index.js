@@ -1,29 +1,49 @@
-// Require the express module
+// Require module
 const express = require('express');
 const morgan = require('morgan');
-const Models = require('./models.js');
+const cors = require('cors')
 const mongoose = require('mongoose');
+const Models = require('./models.js');
+const passport = require('passport');
+const { check, validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
 
+const app = express();
 const MongoMovies = Models.Movies;
 const MongoUsers = Models.Users;
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/cfDB', { });
+mongoose.connect('mongodb://localhost:27017/cfDB',{ })
+  .then(() => console.log('This application server is now connected to MongoDB server'))
+  .catch(err => console.error('Could not connect to MongoDB server:', err));
 
-// Create an instance of express
-const app = express();
-app.use(express.json());
+// Use middleware
+app.use(express.json()); // Parsing JSON
 app.use(express.urlencoded({ extended: true }));
+app.use(cors()); // Enable CORS for all domains
+app.use(morgan('common')); // Use morgan for logging
 
 // Import auth.js file
 let auth = require('./auth')(app);
 
-// Import passport.js file
-const passport = require('passport');
+// Import and configure passport.js file
 require('./passport');
 
-// Use morgan middleware
-app.use(morgan('common'));
+// Validation rules for user registration
+const userValidationRules = [
+  check('Username', 'Username is required and must be at least 5 characters long').isLength({ min: 5 }),
+  check('Username', 'Username must contain only alphanumeric characters.').isAlphanumeric(),
+  check('Password', 'Password is required.').not().isEmpty(),
+  check('Email', 'Email must be a valid email address.').isEmail()
+];
+
+const validateUser = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+  next();
+};
 
 let directors = [
   {
@@ -97,85 +117,81 @@ app.get('/documentation', (req, res) => {
   res.sendFile('public/documentation.html', { root: __dirname });
 });
 
-app.get('/movies', passport.authenticate('jwt', { session: false }),
-  async (req, res) => {
-  const movies = await MongoMovies.find({});
-  res.json(movies);
+app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const movies = await MongoMovies.find({});
+    res.json(movies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error: ' + error);
+  }
 });
 
 // Endpoint to return data about a single movie by title
 app.get('/movies/title/:title', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  const movies = await MongoMovies.find({});
-  const movieTitle = req.params.title;
-  const movie = movies.find(m => m.title.toLowerCase() === movieTitle.toLowerCase());
+    const movies = await MongoMovies.find({});
+    const movieTitle = req.params.title;
+    const movie = movies.find(m => m.title.toLowerCase() === movieTitle.toLowerCase());
 
-  if (movie) {
-    res.json(movie);
-  } else {
-    res.status(404).send('Movie not found');
-  }
-});
+    if (!movie) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+  });
 
 // Endpoint to return movies by a genre
-app.get('/movies/genre/:name', passport.authenticate('jwt', { session: false }), 
+app.get('/movies/genre/:name', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  const movies = await MongoMovies.find({});
-  const genre = req.params.name;
-  const filteredMovies = movies.filter(m => m.genre.name.toUpperCase() === genre.toUpperCase());
+    const movies = await MongoMovies.find({});
+    const genre = req.params.name;
+    const filteredMovies = movies.filter(m => m.genre.name.toUpperCase() === genre.toUpperCase());
 
-  if (filteredMovies.length != 0) {
-    res.json(filteredMovies);
-  } else {
-    res.status(404).send('Sorry, not found');
-  }
+    if (filteredMovies.length != 0) {
+      res.json(filteredMovies);
+    } else {
+      res.status(404).send('Sorry, not found');
+    }
 
-});
+  });
 
 // Endpoint to get a director by name
 app.get('/directors/:name', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  const directorName = req.params.name;
-  const director = directors.find(m => m.name.toLowerCase() === directorName.toLowerCase());
+    const directorName = req.params.name;
+    const director = directors.find(m => m.name.toLowerCase() === directorName.toLowerCase());
 
-  if (director) {
-    res.json(director);
-  } else {
-    res.status(404).send('Director not found');
-  }
-
-});
+    if (director) {
+      res.json(director);
+    } else {
+      res.status(404).send('Director not found');
+    }
+  });
 
 // Endpoint to register a new user
-/* We’ll expect JSON in this format
-{
-  ID: Integer,
-  Username: String,
-  Password: String,
-  Email: String,
-  Birthday: Date
-}*/
+app.post('/users', userValidationRules, validateUser, async (req, res) => {
+  const bcrypt = require('bcrypt');
 
-app.post('/users', async (req, res) => {
-  // console.log('Hello');
-  // console.log(req.body.Username);
-  await MongoUsers.findOne({ username: req.body.Username })
+  // Hash the password using bcrypt
+  let hashedPassword = bcrypt.hashSync(req.body.Password, 10);
+
+  // Check if the username already exists
+  await MongoUsers.findOne({ Username: req.body.Username })
     .then((user) => {
       if (user) {
-        return res.status(400).send(req.body.Username + 'already exists');
+        return res.status(400).send(req.body.Username + ' already exists');
       } else {
         MongoUsers
           .create({
-            username: req.body.Username,
-            password: req.body.Password,
-            email: req.body.Email,
-            birthday: req.body.Birthday
+            Username: req.body.Username,
+            Password: hashedPassword,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday
           })
-          .then((user) =>{res.status(201).json(user) })
-        .catch((error) => {
-          console.error(error);
-          res.status(500).send('Error: ' + error);
-        })
+          .then((user) => { res.status(201).json(user) })
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+          });
       }
     })
     .catch((error) => {
@@ -185,112 +201,111 @@ app.post('/users', async (req, res) => {
 });
 
 // Get all users
-app.get('/users', passport.authenticate('jwt', { session: false }), 
+app.get('/users', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  await MongoUsers.find()
-    .then((users) => {
-      res.status(201).json(users);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
-});
+    await MongoUsers.find()
+      .then((users) => {
+        res.status(201).json(users);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
+  });
 
 // Get a user by username
 app.get('/users/:Username', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  await MongoUsers.findOne({ username: req.params.Username })
-    .then((user) => {
-      res.json(user);
+    await MongoUsers.findOne({ Username: req.params.Username })
+      .then((user) => {
+        if (user) {
+          res.json(user);
+      } else {
+        res.status(404).send('User not found')
+      }
     })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
-});
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
+  });
 
 // Endpoint to update user info
-/* We’ll expect JSON in this format
-{
-  Username: String,
-  (required)
-  Password: String,
-  (required)
-  Email: String,
-  (required)
-  Birthday: Date
-}*/
 app.put('/users/:Username', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  await MongoUsers.findOneAndUpdate({ username: req.params.Username }, { $set:
-    {
-      username: req.body.Username,
-      password: req.body.Password,
-      email: req.body.Email,
-      birthday: req.body.Birthday
-    }
-  },
-  { new: true }) // This line makes sure that the updated document is returned
-  .then((updatedUser) => {
-    res.json(updatedUser);
-  })
-  .catch((err) => {
-    console.error(err);
-    res.status(500).send('Error: ' + err);
-  })
+    const bcrypt = require('bcrypt');
 
-});
+    let hashedPassword = req.body.Password ? bcrypt.hashSync(req.body.Password, 10) : undefined;
+
+    await MongoUsers.findOneAndUpdate({ Username: req.params.Username }, {
+      $set:
+      {
+        Username: req.body.Username,
+        Password: req.body.Password,
+        Email: req.body.Email,
+        Birthday: req.body.Birthday
+      }
+    },
+      { new: true }) // This line makes sure that the updated document is returned
+      .then((updatedUser) => {
+        res.json(updatedUser);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      })
+
+  });
 
 // Endpoint to add a movie to user's favorites
 app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  await MongoUsers.findOneAndUpdate({ username: req.params.Username }, {
-     $push: { favoriteMovies: req.params.MovieID }
-   },
-   { new: true }) // This line makes sure that the updated document is returned
-  .then((updatedUser) => {
-    res.json(updatedUser);
-  })
-  .catch((err) => {
-    console.error(err);
-    res.status(500).send('Error: ' + err);
+    await MongoUsers.findOneAndUpdate({ Username: req.params.Username }, {
+      $push: { favoriteMovies: req.params.MovieID }
+    },
+      { new: true }) // This line makes sure that the updated document is returned
+      .then((updatedUser) => {
+        res.json(updatedUser);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
   });
-});
 
 // Endpoint to remove a movie from user's favorites
 app.delete('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  await MongoUsers.findOneAndUpdate({ username: req.params.Username }, {
-     $pull: { favoriteMovies: req.params.MovieID }
-   },
-   { new: true }) // This line makes sure that the updated document is returned
-  .then((updatedUser) => {
-    res.json(updatedUser);
-  })
-  .catch((err) => {
-    console.error(err);
-    res.status(500).send('Error: ' + err);
+    await MongoUsers.findOneAndUpdate({ Username: req.params.Username }, {
+      $pull: { favoriteMovies: req.params.MovieID }
+    },
+      { new: true }) // This line makes sure that the updated document is returned
+      .then((updatedUser) => {
+        res.json(updatedUser);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
   });
-});
 
 // Endpoint to deregister a user
 // findOneAndRemove has been deprecated, the new one: findOneAndDelete
 app.delete('/users/:Username', passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-  await MongoUsers.findOneAndDelete({ username: req.params.Username })
-    .then((user) => {
-      if (!user) {
-        res.status(400).send(req.params.Username + ' was not found');
-      } else {
-        res.status(200).send(req.params.Username + ' was deleted.');
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
-});
+    await MongoUsers.findOneAndDelete({ Username: req.params.Username })
+      .then((user) => {
+        if (!user) {
+          res.status(400).send(req.params.Username + ' was not found');
+        } else {
+          res.status(200).send(req.params.Username + ' was deleted');
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
+  });
 
 // Handle errors in express
 app.use((err, req, res, next) => {
@@ -300,5 +315,5 @@ app.use((err, req, res, next) => {
 
 // Start the server
 app.listen(8080, () => {
-  console.log('Server is running on port 8080');
+  console.log(`This application server (nodejs) is running on port 8080`);
 });
