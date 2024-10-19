@@ -13,7 +13,7 @@ const MongoMovies = Models.Movies;
 const MongoUsers = Models.Users;
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/cfDB',{ })
+mongoose.connect('mongodb://localhost:27017/cfDB', {})
   .then(() => console.log('This application server is now connected to MongoDB server'))
   .catch(err => console.error('Could not connect to MongoDB server:', err));
 
@@ -220,10 +220,10 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }),
       .then((user) => {
         if (user) {
           res.json(user);
-      } else {
-        res.status(404).send('User not found')
-      }
-    })
+        } else {
+          res.status(404).send('User not found')
+        }
+      })
       .catch((err) => {
         console.error(err);
         res.status(500).send('Error: ' + err);
@@ -314,6 +314,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(8080, () => {
-  console.log(`This application server (nodejs) is running on port 8080`);
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0',() => {
+ console.log('Listening on Port ' + port);
 });
